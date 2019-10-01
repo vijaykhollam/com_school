@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field name="id" type="hidden" size="40" class="inputbox" label="COM_SCHOOL_FORM_LBL_SUBJECT_ID" description="COM_SCHOOL_FORM_DESC_SUBJECT_ID" filter="safehtml" />
+
+		<field name="name" type="text" label="COM_SCHOOL_FORM_LBL_SUBJECT_NAME" description="COM_SCHOOL_FORM_DESC_SUBJECT_NAME" required="true" filter="safehtml" />
+	</fieldset>
+</form>

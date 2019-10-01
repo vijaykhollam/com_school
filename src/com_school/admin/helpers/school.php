@@ -31,5 +31,10 @@ class SchoolHelper
 			'index.php?option=com_school&view=students',
 			$vName == 'students'
 		);
+		JHtmlSidebar::addEntry(
+			JText::_('COM_SCHOOL_TITLE_SUBJECTS'),
+			'index.php?option=com_school&view=subjects',
+			$vName == 'subjects'
+		);
 	}
 }
