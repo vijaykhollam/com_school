@@ -10,11 +10,13 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
-// import Joomla controller library
+// Import Joomla controller library
 jimport('joomla.application.component.controller');
 
 /**
  * School Component Controller
+ *
+ * @since  1.6
  */
 class SchoolController extends JControllerLegacy
 {

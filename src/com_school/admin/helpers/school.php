@@ -26,11 +26,8 @@ class SchoolHelper
 	 */
 	public static function addSubmenu($vName = '')
 	{
-		JHtmlSidebar::addEntry(
-			JText::_('COM_SCHOOL_TITLE_STUDENTS'),
-			'index.php?option=com_school&view=students',
-			$vName == 'students'
-		);
+		JHtmlSidebar::addEntry(JText::_('COM_SCHOOL_TITLE_STUDENTS'), 'index.php?option=com_school&view=students', $vName == 'students');
+		JHtmlSidebar::addEntry(JText::_('COM_SCHOOL_TITLE_TEACHERS'), 'index.php?option=com_school&view=teachers', $vName == 'teachers');
 		JHtmlSidebar::addEntry(
 			JText::_('COM_SCHOOL_TITLE_SUBJECTS'),
 			'index.php?option=com_school&view=subjects',
