@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+  <fieldset>
+    <field name="id" type="text" readonly="true" class="readonly" default="0" description="JGLOBAL_FIELD_ID_DESC"/>
+    <field name="ordering"/>
+    <field name="state" default="1" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox" size="1">
+      <option value="1">JPUBLISHED</option>
+      <option value="0">JUNPUBLISHED</option>
+      <option value="2">JARCHIVED</option>
+      <option value="-2">JTRASHED</option>
+    </field>
+    <field name="checked_out" type="hidden" filter="unset"/>
+    <field name="checked_out_time" default="0000-00-00 00:00:00" type="hidden" filter="unset"/>
+    <field name="fname" filter="safehtml" type="text" required="true" label="COM_SCHOOL_FORM_LBL_TEACHER_FNAME" description="COM_SCHOOL_FORM_DESC_TEACHER_FNAME" hint="COM_SCHOOL_FORM_LBL_TEACHER_FNAME"/>
+    <field name="lname" filter="safehtml" type="text" required="true" label="COM_SCHOOL_FORM_LBL_TEACHER_LNAME" description="COM_SCHOOL_FORM_DESC_TEACHER_LNAME" hint="COM_SCHOOL_FORM_LBL_TEACHER_LNAME"/>
+    <field name="address" filter="safehtml" type="textarea" required="true" label="COM_SCHOOL_FORM_LBL_TEACHER_ADDRESS" description="COM_SCHOOL_FORM_DESC_TEACHER_ADDRESS" hint="COM_SCHOOL_FORM_LBL_TEACHER_ADDRESS"/>
+    <field name="mobile" required="true" label="COM_SCHOOL_FORM_LBL_TEACHER_MOBILE" description="COM_SCHOOL_FORM_DESC_TEACHER_MOBILE" hint="COM_SCHOOL_FORM_LBL_TEACHER_MOBILE"/>
+    <field name="department" type="list" required="true" label="COM_SCHOOL_FORM_LBL_TEACHER_DEPARTMENT" description="COM_SCHOOL_FORM_DESC_TEACHER_DEPARTMENT" hint="COM_SCHOOL_FORM_LBL_TEACHER_DEPARTMENT">
+      <option value="Science">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_SCIENCE</option>
+      <option value="Arts">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_ARTS</option>
+      <option value="Commerce">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_COMMERCE</option>
+    </field>
+    <field name="version_note" type="text" label="JGLOBAL_FIELD_VERSION_NOTE_LABEL" description="JGLOBAL_FIELD_VERSION_NOTE_DESC" class="inputbox" size="45" labelclass="control-label"/>
+  </fieldset>
+</form>

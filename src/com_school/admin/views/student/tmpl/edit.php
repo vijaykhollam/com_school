@@ -1,130 +1,92 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    Tjfields
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2015 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
-
 // No direct access
-defined('_JEXEC') or die();
+defined('_JEXEC') or die;
 
-JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
+use \Joomla\CMS\HTML\HTMLHelper;
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Uri\Uri;
+use \Joomla\CMS\Router\Route;
+use \Joomla\CMS\Language\Text;
 
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.formvalidation');
-JHtml::_('behavior.keepalive');
+
+HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers/html');
+HTMLHelper::_('behavior.tooltip');
+HTMLHelper::_('behavior.formvalidation');
+HTMLHelper::_('formbehavior.chosen', 'select');
+HTMLHelper::_('behavior.keepalive');
+
+// Import CSS
+$document = Factory::getDocument();
+$document->addStyleSheet(Uri::root() . 'media/com_school/css/form.css');
 ?>
-
 <script type="text/javascript">
-	Joomla.submitbutton = function(task)
-	{
-		if (task == 'student.cancel')
-		{
+	js = jQuery.noConflict();
+	js(document).ready(function () {
+		
+	});
+
+	Joomla.submitbutton = function (task) {
+		if (task == 'student.cancel') {
 			Joomla.submitform(task, document.getElementById('student-form'));
 		}
-		else
-		{
-			if (task != 'student.cancel' && document.formvalidator.isValid(document.id('student-form')))
-			{
+		else {
+			
+			if (task != 'student.cancel' && document.formvalidator.isValid(document.id('student-form'))) {
+				
 				Joomla.submitform(task, document.getElementById('student-form'));
 			}
-			else
-			{
-				alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED')); ?>');
+			else {
+				alert('<?php echo $this->escape(Text::_('JGLOBAL_VALIDATION_FORM_FAILED')); ?>');
 			}
 		}
 	}
 </script>
 
-<div class="">
-	<form
-		action="<?php echo JRoute::_('index.php?option=com_school&view=student&layout=edit&id=' . (int) $this->item->id, false);?>"
-		method="post" enctype="multipart/form-data" name="adminForm" id="student-form" class="form-validate">
+<form
+	action="<?php echo JRoute::_('index.php?option=com_school&layout=edit&id=' . (int) $this->item->id); ?>"
+	method="post" enctype="multipart/form-data" name="adminForm" id="student-form" class="form-validate form-horizontal">
 
-		<div class="form-horizontal">
-			<div class="row-fluid">
-				<div class="span12 form-horizontal">
-					<fieldset class="adminform">
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('id'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('id'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('user_id'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('user_id'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('fname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('fname'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('mname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('mname'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('lname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('lname'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('class'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('class'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('mobile'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('mobile'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('address'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('address'); ?>
-							</div>
-						</div>
-					</fieldset>
-				</div>
-			</div>
-
-			<input type="hidden" name="task" value="" />
-			<?php echo JHtml::_('form.token'); ?>
+	
+	<input type="hidden" name="jform[id]" value="<?php echo $this->item->id; ?>" />
+	<input type="hidden" name="jform[ordering]" value="<?php echo $this->item->ordering; ?>" />
+	<input type="hidden" name="jform[state]" value="<?php echo $this->item->state; ?>" />
+	<input type="hidden" name="jform[checked_out]" value="<?php echo $this->item->checked_out; ?>" />
+	<input type="hidden" name="jform[checked_out_time]" value="<?php echo $this->item->checked_out_time; ?>" />
+	<?php echo $this->form->renderField('created_by'); ?>
+	<?php echo JHtml::_('bootstrap.startTabSet', 'myTab', array('active' => 'student')); ?>
+	<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'student', JText::_('COM_SCHOOL_TAB_STUDENT', true)); ?>
+	<div class="row-fluid">
+		<div class="span10 form-horizontal">
+			<fieldset class="adminform">
+				<legend><?php echo JText::_('COM_SCHOOL_FIELDSET_STUDENT'); ?></legend>
+				<?php echo $this->form->renderField('user_id'); ?>
+				<?php echo $this->form->renderField('name'); ?>
+				<?php echo $this->form->renderField('surname'); ?>
+				<?php echo $this->form->renderField('education'); ?>
+				<?php echo $this->form->renderField('hobbies'); ?>
+				<?php echo $this->form->renderField('address'); ?>
+				<?php if ($this->state->params->get('save_history', 1)) : ?>
+					<div class="control-group">
+						<div class="control-label"><?php echo $this->form->getLabel('version_note'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('version_note'); ?></div>
+					</div>
+				<?php endif; ?>
+			</fieldset>
 		</div>
-	</form>
-</div>
+	</div>
+	<?php echo JHtml::_('bootstrap.endTab'); ?>
+
+	
+	<?php echo JHtml::_('bootstrap.endTabSet'); ?>
+
+	<input type="hidden" name="task" value=""/>
+	<?php echo JHtml::_('form.token'); ?>
+
+</form>

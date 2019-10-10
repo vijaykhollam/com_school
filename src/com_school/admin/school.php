@@ -1,30 +1,31 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
+// No direct access
+defined('_JEXEC') or die;
+
+use \Joomla\CMS\MVC\Controller\BaseController;
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Language\Text;
 
 // Access check.
-if (!JFactory::getUser()->authorise('core.manage', 'com_school'))
+if (!Factory::getUser()->authorise('core.manage', 'com_school'))
 {
-	throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'));
+	throw new Exception(Text::_('JERROR_ALERTNOAUTHOR'));
 }
 
-// Import joomla controller library
+// Include dependancies
 jimport('joomla.application.component.controller');
 
-// Get an instance of the controller prefixed by HelloWorld
-$controller = JControllerLegacy::getInstance('School');
+JLoader::registerPrefix('School', JPATH_COMPONENT_ADMINISTRATOR);
+JLoader::register('SchoolHelper', JPATH_COMPONENT_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'helpers' . DIRECTORY_SEPARATOR . 'school.php');
 
-// Perform the Request task
-$input = JFactory::getApplication()->input;
-$controller->execute($input->getCmd('task'));
-
-// Redirect if set by the controller
+$controller = BaseController::getInstance('School');
+$controller->execute(Factory::getApplication()->input->get('task'));
 $controller->redirect();

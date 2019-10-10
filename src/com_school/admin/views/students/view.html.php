@@ -1,112 +1,60 @@
 <?php
-/**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
- */
-
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
 
 /**
- * Students view class
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
-class SchoolViewStudents extends JViewLegacy
+// No direct access
+defined('_JEXEC') or die;
+
+jimport('joomla.application.component.view');
+
+use \Joomla\CMS\Language\Text;
+
+/**
+ * View class for a list of School.
+ *
+ * @since  1.6
+ */
+class SchoolViewStudents extends \Joomla\CMS\MVC\View\HtmlView
 {
-	/**
-	 * The item authors
-	 *
-	 * @var  stdClass
-	 */
-	protected $authors;
-
-	/**
-	 * An array of items
-	 *
-	 * @var  array
-	 */
 	protected $items;
 
-	/**
-	 * The pagination object
-	 *
-	 * @var  JPagination
-	 */
 	protected $pagination;
 
-	/**
-	 * The model state
-	 *
-	 * @var  object
-	 */
 	protected $state;
-
-	/**
-	 * Form object for search filters
-	 *
-	 * @var  JForm
-	 */
-	public $filterForm;
-
-	/**
-	 * The active search filters
-	 *
-	 * @var  array
-	 */
-	public $activeFilters;
-
-	/**
-	 * The sidebar markup
-	 *
-	 * @var  string
-	 */
-	protected $sidebar;
 
 	/**
 	 * Display the view
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 * @param   string  $tpl  Template name
 	 *
-	 * @return  mixed  A string if successful, otherwise an Error object.
+	 * @return void
+	 *
+	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{
-		// Assign data to the view
-		$this->msg = 'Hello World';
-
-		// Get state
 		$this->state = $this->get('State');
-
-		// This calls model function getItems()
 		$this->items = $this->get('Items');
-
-		// Get pagination
 		$this->pagination = $this->get('Pagination');
+        $this->filterForm = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
 
-		$this->filterForm    = $this->get('FilterForm');
-		$this->activeFilters = $this->get('ActiveFilters');
+		// Check for errors.
+		if (count($errors = $this->get('Errors')))
+		{
+			throw new Exception(implode("\n", $errors));
+		}
 
-		// Get ACL actions
-		$this->user            = JFactory::getUser();
-
-		$this->canCreate       = $this->user->authorise('core.content.create', 'com_school');
-		$this->canEdit         = $this->user->authorise('core.content.edit', 'com_school');
-		$this->canCheckin      = $this->user->authorise('core.content.manage', 'com_school');
-		$this->canChangeStatus = $this->user->authorise('core.content.edit.state', 'com_school');
-		$this->canDelete       = $this->user->authorise('core.content.delete', 'com_school');
-
-		// Add submenu
 		SchoolHelper::addSubmenu('students');
 
-		// Add oolbar
 		$this->addToolbar();
 
-		// Set sidebar
 		$this->sidebar = JHtmlSidebar::render();
-
-		// Display the view
 		parent::display($tpl);
 	}
 
@@ -120,27 +68,32 @@ class SchoolViewStudents extends JViewLegacy
 	protected function addToolbar()
 	{
 		$state = $this->get('State');
+		$canDo = SchoolHelper::getActions();
 
-		JToolBarHelper::title(JText::_('COM_SCHOOL_TITLE_STUDENTS'), 'stack article');
+		JToolBarHelper::title(Text::_('COM_SCHOOL_TITLE_STUDENTS'), 'students.png');
 
 		// Check if the form exists before showing the add/edit buttons
 		$formPath = JPATH_COMPONENT_ADMINISTRATOR . '/views/student';
 
 		if (file_exists($formPath))
 		{
-			if ($this->canCreate)
+			if ($canDo->get('core.create'))
 			{
 				JToolBarHelper::addNew('student.add', 'JTOOLBAR_NEW');
-				JToolbarHelper::custom('student.duplicate', 'copy.png', 'copy_f2.png', 'JTOOLBAR_DUPLICATE', true);
+
+				if (isset($this->items[0]))
+				{
+					JToolbarHelper::custom('students.duplicate', 'copy.png', 'copy_f2.png', 'JTOOLBAR_DUPLICATE', true);
+				}
 			}
 
-			if ($this->canEdit && isset($this->items[0]))
+			if ($canDo->get('core.edit') && isset($this->items[0]))
 			{
 				JToolBarHelper::editList('student.edit', 'JTOOLBAR_EDIT');
 			}
 		}
 
-		if ($this->canChangeStatus)
+		if ($canDo->get('core.edit.state'))
 		{
 			if (isset($this->items[0]->state))
 			{
@@ -169,32 +122,56 @@ class SchoolViewStudents extends JViewLegacy
 		// Show trash and delete for components that uses the state field
 		if (isset($this->items[0]->state))
 		{
-			if ($state->get('filter.state') == -2 && $this->canDelete)
+			if ($state->get('filter.state') == -2 && $canDo->get('core.delete'))
 			{
 				JToolBarHelper::deleteList('', 'students.delete', 'JTOOLBAR_EMPTY_TRASH');
 				JToolBarHelper::divider();
 			}
-			elseif ($this->canChangeStatus)
+			elseif ($canDo->get('core.edit.state'))
 			{
 				JToolBarHelper::trash('students.trash', 'JTOOLBAR_TRASH');
 				JToolBarHelper::divider();
 			}
 		}
+
+		if ($canDo->get('core.admin'))
+		{
+			JToolBarHelper::preferences('com_school');
+		}
+
+		// Set sidebar action - New in 3.0
+		JHtmlSidebar::setAction('index.php?option=com_school&view=students');
 	}
 
 	/**
-	 * Method to order fields
+	 * Method to order fields 
 	 *
-	 * @return void
+	 * @return void 
 	 */
 	protected function getSortFields()
 	{
 		return array(
-			'a.id' => JText::_('JGRID_HEADING_ID'),
-			'a.fname' => JText::_('COM_SCHOOL_STUDENT_FNAME'),
-			'a.mobile' => JText::_('COM_SCHOOL_STUDENT_MOBILE'),
-			'a.ordering' => JText::_('JGRID_HEADING_ORDERING'),
-			'a.state' => JText::_('JSTATUS'),
+			'a.`id`' => JText::_('JGRID_HEADING_ID'),
+			'a.`ordering`' => JText::_('JGRID_HEADING_ORDERING'),
+			'a.`state`' => JText::_('JSTATUS'),
+			'a.`user_id`' => JText::_('COM_SCHOOL_STUDENTS_USER_ID'),
+			'a.`name`' => JText::_('COM_SCHOOL_STUDENTS_NAME'),
+			'a.`surname`' => JText::_('COM_SCHOOL_STUDENTS_SURNAME'),
+			'a.`education`' => JText::_('COM_SCHOOL_STUDENTS_EDUCATION'),
+			'a.`hobbies`' => JText::_('COM_SCHOOL_STUDENTS_HOBBIES'),
+			'a.`address`' => JText::_('COM_SCHOOL_STUDENTS_ADDRESS'),
 		);
 	}
+
+    /**
+     * Check if state is set
+     *
+     * @param   mixed  $state  State
+     *
+     * @return bool
+     */
+    public function getState($state)
+    {
+        return isset($this->state->{$state}) ? $this->state->{$state} : false;
+    }
 }

@@ -9,13 +9,13 @@
 
 defined('_JEXEC') or die;
 
-use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\MVC\Controller\FormController;
 
 /**
  * The article controller
  *
  * @since  1.6
  */
-class SchoolControllerSubject extends JControllerForm
+class SchoolControllerSubject extends FormController
 {
 }

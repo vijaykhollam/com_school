@@ -11,6 +11,7 @@
 defined('_JEXEC') or die();
 
 JHtml::_('behavior.tooltip');
+
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
 ?>
@@ -47,68 +48,17 @@ JHtml::_('behavior.keepalive');
 				<div class="span12 form-horizontal">
 					<fieldset class="adminform">
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('id'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('id'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('user_id'); ?>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('fname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('fname'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('name'); ?>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('mname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('mname'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('surname'); ?>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('lname'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('lname'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('education'); ?>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('class'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('class'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('hobbies'); ?>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('mobile'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('mobile'); ?>
-							</div>
-						</div>
-
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo $this->form->getLabel('address'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->form->getInput('address'); ?>
-							</div>
-						</div>
+	<?php echo $this->form->renderField('address'); ?>
 					</fieldset>
 				</div>
 			</div>

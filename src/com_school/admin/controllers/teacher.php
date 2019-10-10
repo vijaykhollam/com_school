@@ -1,21 +1,32 @@
 <?php
 /**
- * @package     Joomla.Administrator
- * @subpackage  com_content
- *
- * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
 
+// No direct access
 defined('_JEXEC') or die;
 
-use Joomla\Utilities\ArrayHelper;
+jimport('joomla.application.component.controllerform');
 
 /**
- * The article controller
+ * Teacher controller class.
  *
  * @since  1.6
  */
-class SchoolControllerTeacher extends JControllerForm
+class SchoolControllerTeacher extends \Joomla\CMS\MVC\Controller\FormController
 {
+	/**
+	 * Constructor
+	 *
+	 * @throws Exception
+	 */
+	public function __construct()
+	{
+		$this->view_list = 'teachers';
+		parent::__construct();
+	}
 }

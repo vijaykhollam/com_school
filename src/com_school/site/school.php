@@ -1,30 +1,25 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die;
 
-// Access check.
-//~ if (!JFactory::getUser()->authorise('core.manage', 'com_school'))
-//~ {
-	//~ throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'));
-//~ }
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\MVC\Controller\BaseController;
 
-// Import joomla controller library
+// Include dependancies
 jimport('joomla.application.component.controller');
 
-// Get an instance of the controller prefixed by HelloWorld
-$controller = JControllerLegacy::getInstance('School');
+JLoader::registerPrefix('School', JPATH_COMPONENT);
+JLoader::register('SchoolController', JPATH_COMPONENT . '/controller.php');
 
-// Perform the Request task
-$input = JFactory::getApplication()->input;
-$controller->execute($input->getCmd('task'));
 
-// Redirect if set by the controller
+// Execute the task.
+$controller = BaseController::getInstance('School');
+$controller->execute(Factory::getApplication()->input->get('task'));
 $controller->redirect();

@@ -1,36 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-	<fields name="filter">
-		<field
-			name="search"
-			type="text"
-			label="COM_SCHOOL_FILTER_SEARCH_LABEL"
-			description="COM_SCHOOL_FILTER_SEARCH_DESC"
-			hint="JSEARCH_FILTER"
-		/>
+    <fields name="filter">
+        <field name="search" type="text" hint="COM_SCHOOL_SEARCH_FILTER_SUBMIT"
+               label="COM_USERS_FILTER_SEARCH_DESC"
+               class="js-stools-search-string" />
 
-		<field
-			name="published"
-			type="status"
-			label="COM_SCHOOL_FILTER_PUBLISHED"
-			description="COM_SCHOOL_FILTER_PUBLISHED_DESC"
-			onchange="this.form.submit();"
-			>
-			<option value="">JOPTION_SELECT_PUBLISHED</option>
-		</field>
+        <field name="state"
+               type="status"
+               label="COM_SCHOOL_FILTER_STATE"
+               description="COM_SCHOOL_FILTER_STATE_DESC"
+               onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_PUBLISHED</option>
+        </field>
 
-		<input type="hidden" name="form_submited" value="1"/>
-	</fields>
+        <field name="user_id" label="COM_SCHOOL_FORM_LBL_TEACHER_USER_ID" type="sql" query="SELECT &quot;&quot; AS `id`, &quot;COM_SCHOOL_TEACHERS_USER_ID_FILTER&quot; AS `name` UNION SELECT `id`, `name` FROM `#__users`" translate="true" key_field="id" value_field="name" onchange="this.form.submit();"/>
+<field name="department" label="COM_SCHOOL_FORM_LBL_TEACHER_DEPARTMENT" type="list" onchange="this.form.submit();" default="COM_SCHOOL_TEACHERS_DEPARTMENT_FILTER">
+  <option value="">COM_SCHOOL_TEACHERS_DEPARTMENT_FILTER</option>
+  <option value="Science">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_SCIENCE</option>
+  <option value="Arts">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_ARTS</option>
+  <option value="Commerce">COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_COMMERCE</option>
+</field>
 
-	<fields name="list">
-		<field
-			name="limit"
-			type="limitbox"
-			label="COM_SCHOOL_LIST_LIMIT"
-			description="COM_SCHOOL_LIST_LIMIT_DESC"
-			class="input-mini"
-			default="25"
-			onchange="this.form.submit();"
-		/>
-	</fields>
+
+    </fields>
+
+    <fields name="list">
+
+        <field name="fullordering"
+               type="list"
+               label="COM_CONTENT_LIST_FULL_ORDERING"
+               description="COM_CONTENT_LIST_FULL_ORDERING_DESC"
+               onchange="this.form.submit();"
+               default="a.id DESC"
+        >
+            <option value="">JGLOBAL_SORT_BY</option>
+            <option value="a.`id` ASC">ID Ascending</option><option value="a.`id` DESC">ID Descending</option><option value="a.`ordering` ASC">Order Ascending</option><option value="a.`ordering` DESC">Order Descending</option><option value="a.`state` ASC">State Ascending</option><option value="a.`state` DESC">State Descending</option><option value="a.`user_id` ASC">User Id Ascending</option><option value="a.`user_id` DESC">User Id Descending</option><option value="a.`fname` ASC">First Name Ascending</option><option value="a.`fname` DESC">First Name Descending</option><option value="a.`lname` ASC">Last Name Ascending</option><option value="a.`lname` DESC">Last Name Descending</option><option value="a.`address` ASC">Address Ascending</option><option value="a.`address` DESC">Address Descending</option><option value="a.`mobile` ASC">Mobile Ascending</option><option value="a.`mobile` DESC">Mobile Descending</option><option value="a.`department` ASC">Department Ascending</option><option value="a.`department` DESC">Department Descending</option>
+
+        </field>
+
+        <field name="limit"
+               type="limitbox"
+               class="input-mini"
+               default="25"
+               onchange="this.form.submit();"
+        />
+
+    </fields>
+
 </form>

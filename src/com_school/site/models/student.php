@@ -1,63 +1,35 @@
 <?php
-/**
- * @package     Joomla.Administrator
- * @subpackage  com_content
- *
- * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
- */
 
+/**
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
+ */
+// No direct access.
 defined('_JEXEC') or die;
 
-use Joomla\Registry\Registry;
-use Joomla\Utilities\ArrayHelper;
+jimport('joomla.application.component.modelitem');
+jimport('joomla.event.dispatcher');
+
+use \Joomla\CMS\Factory;
+use \Joomla\Utilities\ArrayHelper;
+use \Joomla\CMS\Language\Text;
+use \Joomla\CMS\Table\Table;
 
 /**
- * Item Model for an Article.
+ * School model.
  *
  * @since  1.6
  */
-class SchoolModelStudent extends JModelForm
+class SchoolModelStudent extends \Joomla\CMS\MVC\Model\ItemModel
 {
-	private $item = null;
+    public $_item;
 
-	/**
-	 * Method to get the record form.
-	 *
-	 * @param   array    $data      Data for the form.
-	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-	 *
-	 * @return  JForm|boolean  A JForm object on success, false on failure
-	 *
-	 * @since   1.6
-	 */
-	public function getForm($data = array(), $loadData = true)
-	{
-		// Get the form.
-		$form = $this->loadForm('com_student.student', 'student', array('control' => 'jform', 'load_data' => $loadData));
-
-		if (empty($form))
-		{
-			return false;
-		}
-
-		return $form;
-	}
-
-		/**
-	 * Returns a Table object, always creating it.
-	 *
-	 * @param   string  $type    The table type to instantiate
-	 * @param   string  $prefix  A prefix for the table class name. Optional.
-	 * @param   array   $config  Configuration array for model. Optional.
-	 *
-	 * @return  JTable    A database object
-	 */
-	public function getTable($type = 'Student', $prefix = 'SchoolTable', $config = array())
-	{
-		return JTable::getInstance($type, $prefix, $config);
-	}
-
+        
+    
+        
 	/**
 	 * Method to auto-populate the model state.
 	 *
@@ -65,69 +37,255 @@ class SchoolModelStudent extends JModelForm
 	 *
 	 * @return void
 	 *
-	 * @since  1.6
+	 * @since    1.6
+	 *
+     * @throws Exception
 	 */
 	protected function populateState()
 	{
-		$app = JFactory::getApplication();
-		$id = $app->input->get('id');
-		$this->setState('student.id', $id);
-	}
+		$app  = Factory::getApplication('com_school');
+		$user = Factory::getUser();
 
-	/**
-	 * Method to get the data that should be injected in the form.
-	 *
-	 * @return	mixed	$data  The data for the form.
-	 *
-	 * @since	1.6
-	 */
-	protected function loadFormData()
-	{
-		// Check the session for previously entered form data.
-		$data = JFactory::getApplication()->getUserState('com_school.edit.student.data', array());
-
-		if (empty($data))
+		// Check published state
+		if ((!$user->authorise('core.edit.state', 'com_school')) && (!$user->authorise('core.edit', 'com_school')))
 		{
-			$data = $this->getData();
+			$this->setState('filter.published', 1);
+			$this->setState('filter.archived', 2);
 		}
 
-		return $data;
+		// Load state from the request userState on edit or from the passed variable on default
+		if (Factory::getApplication()->input->get('layout') == 'edit')
+		{
+			$id = Factory::getApplication()->getUserState('com_school.edit.student.id');
+		}
+		else
+		{
+			$id = Factory::getApplication()->input->get('id');
+			Factory::getApplication()->setUserState('com_school.edit.student.id', $id);
+		}
+
+		$this->setState('student.id', $id);
+
+		// Load the parameters.
+		$params       = $app->getParams();
+		$params_array = $params->toArray();
+
+		if (isset($params_array['item_id']))
+		{
+			$this->setState('student.id', $params_array['item_id']);
+		}
+
+		$this->setState('params', $params);
 	}
 
 	/**
-	 * Method to get an ojbect.
+	 * Method to get an object.
 	 *
-	 * @param   integer  $id  The id of the object to get.
+	 * @param   integer $id The id of the object to get.
 	 *
-	 * @return Object|boolean Object on success, false on failure.
-	 *
-	 * @throws Exception
+	 * @return  mixed    Object on success, false on failure.
+     *
+     * @throws Exception
 	 */
-	public function getData($id = null)
+	public function getItem($id = null)
 	{
-		if ($this->item === null)
+            if ($this->_item === null)
+            {
+                $this->_item = false;
+
+                if (empty($id))
+                {
+                    $id = $this->getState('student.id');
+                }
+
+                // Get a level row instance.
+                $table = $this->getTable();
+
+                // Attempt to load the row.
+                if ($table->load($id))
+                {
+                    
+
+                    // Check published state.
+                    if ($published = $this->getState('filter.published'))
+                    {
+                        if (isset($table->state) && $table->state != $published)
+                        {
+                            throw new Exception(Text::_('COM_SCHOOL_ITEM_NOT_LOADED'), 403);
+                        }
+                    }
+
+                    // Convert the JTable to a clean JObject.
+                    $properties  = $table->getProperties(1);
+                    $this->_item = ArrayHelper::toObject($properties, 'JObject');
+
+                    
+                } 
+            }
+        
+            
+
+		if (isset($this->_item->created_by))
 		{
-			$this->item = false;
+			$this->_item->created_by_name = JFactory::getUser($this->_item->created_by)->name;
+		}
 
-			if (empty($id))
-			{
-				$id = $this->getState('student.id');
-			}
+		if (isset($this->_item->user_id))
+		{
+			$this->_item->user_id_name = JFactory::getUser($this->_item->user_id)->name;
+		}
 
-			// Get a level row instance.
+		if (!empty($this->_item->education))
+		{
+			$this->_item->education = JText::_('COM_SCHOOL_STUDENTS_EDUCATION_OPTION_' . $this->_item->education);
+		}
+
+            return $this->_item;
+        }
+
+	/**
+	 * Get an instance of JTable class
+	 *
+	 * @param   string $type   Name of the JTable class to get an instance of.
+	 * @param   string $prefix Prefix for the table class name. Optional.
+	 * @param   array  $config Array of configuration values for the JTable object. Optional.
+	 *
+	 * @return  JTable|bool JTable if success, false on failure.
+	 */
+	public function getTable($type = 'Student', $prefix = 'SchoolTable', $config = array())
+	{
+		$this->addTablePath(JPATH_ADMINISTRATOR . '/components/com_school/tables');
+
+		return Table::getInstance($type, $prefix, $config);
+	}
+
+	/**
+	 * Get the id of an item by alias
+	 *
+	 * @param   string $alias Item alias
+	 *
+	 * @return  mixed
+	 */
+	public function getItemIdByAlias($alias)
+	{
+            $table      = $this->getTable();
+            $properties = $table->getProperties();
+            $result     = null;
+
+            if (key_exists('alias', $properties))
+            {
+                $table->load(array('alias' => $alias));
+                $result = $table->id;
+            }
+            
+                return $result;
+            
+	}
+
+	/**
+	 * Method to check in an item.
+	 *
+	 * @param   integer $id The id of the row to check out.
+	 *
+	 * @return  boolean True on success, false on failure.
+	 *
+	 * @since    1.6
+	 */
+	public function checkin($id = null)
+	{
+		// Get the id.
+		$id = (!empty($id)) ? $id : (int) $this->getState('student.id');
+                
+		if ($id)
+		{
+			// Initialise the table
 			$table = $this->getTable();
 
-			// Attempt to load the row.
-			if ($table !== false && $table->load($id))
+			// Attempt to check the row in.
+			if (method_exists($table, 'checkin'))
 			{
-				$id   = $table->id;
-
-				// Convert the JTable to a clean JObject.
-				$properties = $table->getProperties(1);
-				$this->item = ArrayHelper::toObject($properties, 'JObject');
+				if (!$table->checkin($id))
+				{
+					return false;
+				}
 			}
 		}
 
-		return $this->item;
+		return true;
+                
 	}
+
+	/**
+	 * Method to check out an item for editing.
+	 *
+	 * @param   integer $id The id of the row to check out.
+	 *
+	 * @return  boolean True on success, false on failure.
+	 *
+	 * @since    1.6
+	 */
+	public function checkout($id = null)
+	{
+		// Get the user id.
+		$id = (!empty($id)) ? $id : (int) $this->getState('student.id');
+
+                
+		if ($id)
+		{
+			// Initialise the table
+			$table = $this->getTable();
+
+			// Get the current user object.
+			$user = Factory::getUser();
+
+			// Attempt to check the row out.
+			if (method_exists($table, 'checkout'))
+			{
+				if (!$table->checkout($user->get('id'), $id))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+                
+	}
+
+	/**
+	 * Publish the element
+	 *
+	 * @param   int $id    Item id
+	 * @param   int $state Publish state
+	 *
+	 * @return  boolean
+	 */
+	public function publish($id, $state)
+	{
+		$table = $this->getTable();
+                
+		$table->load($id);
+		$table->state = $state;
+
+		return $table->store();
+                
+	}
+
+	/**
+	 * Method to delete an item
+	 *
+	 * @param   int $id Element id
+	 *
+	 * @return  bool
+	 */
+	public function delete($id)
+	{
+		$table = $this->getTable();
+
+                
+                    return $table->delete($id);
+                
+	}
+
+	
 }

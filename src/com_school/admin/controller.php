@@ -1,24 +1,23 @@
 <?php
+
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
+// No direct access
+defined('_JEXEC') or die;
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
-
-// Import Joomla controller library
-jimport('joomla.application.component.controller');
+use \Joomla\CMS\Factory;
 
 /**
- * School Component Controller
+ * Class SchoolController
  *
  * @since  1.6
  */
-class SchoolController extends JControllerLegacy
+class SchoolController extends \Joomla\CMS\MVC\Controller\BaseController
 {
 	/**
 	 * Method to display a view.
@@ -29,13 +28,12 @@ class SchoolController extends JControllerLegacy
 	 * @return   JController This object to support chaining.
 	 *
 	 * @since    1.5
+     * @throws Exception
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
-		require_once JPATH_COMPONENT . '/helpers/school.php';
-
-		$view = JFactory::getApplication()->input->getCmd('view', 'students');
-		JFactory::getApplication()->input->set('view', $view);
+		$view = Factory::getApplication()->input->getCmd('view', 'students');
+		Factory::getApplication()->input->set('view', $view);
 
 		parent::display($cachable, $urlparams);
 

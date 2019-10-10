@@ -1,37 +1,42 @@
 <?php
+
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
+// No direct access
+defined('_JEXEC') or die;
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
-
-// import Joomla controller library
 jimport('joomla.application.component.controller');
 
+use \Joomla\CMS\Factory;
+
 /**
- * School Component Controller
+ * Class SchoolController
+ *
+ * @since  1.6
  */
-class SchoolController extends JControllerLegacy
+class SchoolController extends \Joomla\CMS\MVC\Controller\BaseController
 {
 	/**
 	 * Method to display a view.
 	 *
-	 * @param   boolean  $cachable   If true, the view output will be cached
-	 * @param   mixed    $urlparams  An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
+	 * @param   boolean $cachable  If true, the view output will be cached
+	 * @param   mixed   $urlparams An array of safe url parameters and their variable types, for valid values see {@link JFilterInput::clean()}.
 	 *
-	 * @return   JController This object to support chaining.
+	 * @return  JController   This object to support chaining.
 	 *
 	 * @since    1.5
+     * @throws Exception
 	 */
 	public function display($cachable = false, $urlparams = false)
 	{
-		$view = JFactory::getApplication()->input->getCmd('view', 'students');
-		JFactory::getApplication()->input->set('view', $view);
+        $app  = Factory::getApplication();
+        $view = $app->input->getCmd('view', 'students');
+		$app->input->set('view', $view);
 
 		parent::display($cachable, $urlparams);
 

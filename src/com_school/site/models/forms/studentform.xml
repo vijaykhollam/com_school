@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+  <fieldset>
+    <field name="id" type="text" readonly="true" class="readonly" default="0" description="JGLOBAL_FIELD_ID_DESC"/>
+    <field name="ordering"/>
+    <field name="state" default="1" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox" size="1">
+      <option value="1">JPUBLISHED</option>
+      <option value="0">JUNPUBLISHED</option>
+      <option value="2">JARCHIVED</option>
+      <option value="-2">JTRASHED</option>
+    </field>
+    <field name="checked_out" type="hidden" filter="unset"/>
+    <field name="checked_out_time" default="0000-00-00 00:00:00" type="hidden" filter="unset"/>
+    <field name="name" type="text" required="true" label="COM_SCHOOL_FORM_LBL_STUDENT_NAME" description="COM_SCHOOL_FORM_DESC_STUDENT_NAME" hint="COM_SCHOOL_FORM_LBL_STUDENT_NAME"/>
+    <field name="surname" type="text" required="true" label="COM_SCHOOL_FORM_LBL_STUDENT_SURNAME" description="COM_SCHOOL_FORM_DESC_STUDENT_SURNAME" hint="COM_SCHOOL_FORM_LBL_STUDENT_SURNAME"/>
+    <field name="education" type="list" label="COM_SCHOOL_FORM_LBL_STUDENT_EDUCATION" description="COM_SCHOOL_FORM_DESC_STUDENT_EDUCATION" hint="COM_SCHOOL_FORM_LBL_STUDENT_EDUCATION">
+      <option value="be">COM_SCHOOL_STUDENTS_EDUCATION_OPTION_BE</option>
+      <option value="mca">COM_SCHOOL_STUDENTS_EDUCATION_OPTION_MCA</option>
+    </field>
+    <field name="hobbies" cols="250" rows="5" type="textarea" label="COM_SCHOOL_FORM_LBL_STUDENT_HOBBIES" description="COM_SCHOOL_FORM_DESC_STUDENT_HOBBIES" hint="COM_SCHOOL_FORM_LBL_STUDENT_HOBBIES"/>
+    <field name="address" filter="safehtml" type="textarea" required="true" label="COM_SCHOOL_FORM_LBL_STUDENT_ADDRESS" description="COM_SCHOOL_FORM_DESC_STUDENT_ADDRESS" hint="COM_SCHOOL_FORM_LBL_STUDENT_ADDRESS"/>
+    <field name="version_note" type="text" label="JGLOBAL_FIELD_VERSION_NOTE_LABEL" description="JGLOBAL_FIELD_VERSION_NOTE_DESC" class="inputbox" size="45" labelclass="control-label"/>
+  </fieldset>
+</form>
