@@ -1,14 +1,16 @@
 <?php
-/**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
- */
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
+/**
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
+ */
+// No direct access
+defined('_JEXEC') or die;
+
+use \Joomla\CMS\Factory;
 
 /**
  * School helper.
@@ -26,12 +28,70 @@ class SchoolHelper
 	 */
 	public static function addSubmenu($vName = '')
 	{
-		JHtmlSidebar::addEntry(JText::_('COM_SCHOOL_TITLE_STUDENTS'), 'index.php?option=com_school&view=students', $vName == 'students');
-		JHtmlSidebar::addEntry(JText::_('COM_SCHOOL_TITLE_TEACHERS'), 'index.php?option=com_school&view=teachers', $vName == 'teachers');
 		JHtmlSidebar::addEntry(
-			JText::_('COM_SCHOOL_TITLE_SUBJECTS'),
-			'index.php?option=com_school&view=subjects',
-			$vName == 'subjects'
+			JText::_('COM_SCHOOL_TITLE_STUDENTS'),
+			'index.php?option=com_school&view=students',
+			$vName == 'students'
 		);
+
+JHtmlSidebar::addEntry(
+			JText::_('COM_SCHOOL_TITLE_TEACHERS'),
+			'index.php?option=com_school&view=teachers',
+			$vName == 'teachers'
+		);
+
+	}
+
+	/**
+	 * Gets the files attached to an item
+	 *
+	 * @param   int     $pk     The item's id
+	 *
+	 * @param   string  $table  The table's name
+	 *
+	 * @param   string  $field  The field's name
+	 *
+	 * @return  array  The files
+	 */
+	public static function getFiles($pk, $table, $field)
+	{
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select($field)
+			->from($table)
+			->where('id = ' . (int) $pk);
+
+		$db->setQuery($query);
+
+		return explode(',', $db->loadResult());
+	}
+
+	/**
+	 * Gets a list of the actions that can be performed.
+	 *
+	 * @return    JObject
+	 *
+	 * @since    1.6
+	 */
+	public static function getActions()
+	{
+		$user   = Factory::getUser();
+		$result = new JObject;
+
+		$assetName = 'com_school';
+
+		$actions = array(
+			'core.admin', 'core.manage', 'core.create', 'core.edit', 'core.edit.own', 'core.edit.state', 'core.delete'
+		);
+
+		foreach ($actions as $action)
+		{
+			$result->set($action, $user->authorise($action, $assetName));
+		}
+
+		return $result;
 	}
 }
+

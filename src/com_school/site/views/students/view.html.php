@@ -1,107 +1,133 @@
 <?php
-/**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
- */
-
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
 
 /**
- * Students view class
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
-class SchoolViewStudents extends JViewLegacy
+// No direct access
+defined('_JEXEC') or die;
+
+jimport('joomla.application.component.view');
+
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Language\Text;
+
+/**
+ * View class for a list of School.
+ *
+ * @since  1.6
+ */
+class SchoolViewStudents extends \Joomla\CMS\MVC\View\HtmlView
 {
-	/**
-	 * The item authors
-	 *
-	 * @var  stdClass
-	 */
-	protected $authors;
-
-	/**
-	 * An array of items
-	 *
-	 * @var  array
-	 */
 	protected $items;
 
-	/**
-	 * The pagination object
-	 *
-	 * @var  JPagination
-	 */
 	protected $pagination;
 
-	/**
-	 * The model state
-	 *
-	 * @var  object
-	 */
 	protected $state;
 
-	/**
-	 * Form object for search filters
-	 *
-	 * @var  JForm
-	 */
-	public $filterForm;
-
-	/**
-	 * The active search filters
-	 *
-	 * @var  array
-	 */
-	public $activeFilters;
-
-	/**
-	 * The sidebar markup
-	 *
-	 * @var  string
-	 */
-	protected $sidebar;
+	protected $params;
 
 	/**
 	 * Display the view
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 * @param   string  $tpl  Template name
 	 *
-	 * @return  mixed  A string if successful, otherwise an Error object.
+	 * @return void
+	 *
+	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{
-		// Get state
+		$app = Factory::getApplication();
+
 		$this->state = $this->get('State');
-
-		// This calls model function getItems()
 		$this->items = $this->get('Items');
-
-		// Get pagination
 		$this->pagination = $this->get('Pagination');
-
-		$this->filterForm    = $this->get('FilterForm');
+		$this->params = $app->getParams('com_school');
+		$this->filterForm = $this->get('FilterForm');
 		$this->activeFilters = $this->get('ActiveFilters');
 
-		// Display the view
+		// Check for errors.
+		if (count($errors = $this->get('Errors')))
+		{
+			throw new Exception(implode("\n", $errors));
+		}
+
+		$this->_prepareDocument();
 		parent::display($tpl);
 	}
 
 	/**
-	 * Method to order fields
+	 * Prepares the document
 	 *
 	 * @return void
+	 *
+	 * @throws Exception
 	 */
-	protected function getSortFields()
+	protected function _prepareDocument()
 	{
-		return array(
-			'a.id' => JText::_('JGRID_HEADING_ID'),
-			'a.fname' => JText::_('COM_SCHOOL_STUDENT_FNAME'),
-			'a.mobile' => JText::_('COM_SCHOOL_STUDENT_MOBILE'),
-			'a.ordering' => JText::_('JGRID_HEADING_ORDERING'),
-			'a.state' => JText::_('JSTATUS'),
-		);
+		$app   = Factory::getApplication();
+		$menus = $app->getMenu();
+		$title = null;
+
+		// Because the application sets a default page title,
+		// we need to get it from the menu item itself
+		$menu = $menus->getActive();
+
+		if ($menu)
+		{
+			$this->params->def('page_heading', $this->params->get('page_title', $menu->title));
+		}
+		else
+		{
+			$this->params->def('page_heading', Text::_('COM_SCHOOL_DEFAULT_PAGE_TITLE'));
+		}
+
+		$title = $this->params->get('page_title', '');
+
+		if (empty($title))
+		{
+			$title = $app->get('sitename');
+		}
+		elseif ($app->get('sitename_pagetitles', 0) == 1)
+		{
+			$title = Text::sprintf('JPAGETITLE', $app->get('sitename'), $title);
+		}
+		elseif ($app->get('sitename_pagetitles', 0) == 2)
+		{
+			$title = Text::sprintf('JPAGETITLE', $title, $app->get('sitename'));
+		}
+
+		$this->document->setTitle($title);
+
+		if ($this->params->get('menu-meta_description'))
+		{
+			$this->document->setDescription($this->params->get('menu-meta_description'));
+		}
+
+		if ($this->params->get('menu-meta_keywords'))
+		{
+			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+		}
+
+		if ($this->params->get('robots'))
+		{
+			$this->document->setMetadata('robots', $this->params->get('robots'));
+		}
+	}
+
+	/**
+	 * Check if state is set
+	 *
+	 * @param   mixed  $state  State
+	 *
+	 * @return bool
+	 */
+	public function getState($state)
+	{
+		return isset($this->state->{$state}) ? $this->state->{$state} : false;
 	}
 }

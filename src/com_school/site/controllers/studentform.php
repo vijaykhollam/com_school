@@ -1,105 +1,164 @@
 <?php
+
 /**
- * @package     Joomla.Administrator
- * @subpackage  com_content
- *
- * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
-defined('_JEXEC') or die();
+// No direct access
+defined('_JEXEC') or die;
 
-require_once JPATH_COMPONENT . '/controller.php';
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Router\Route;
+use \Joomla\CMS\Session\Session;
+use \Joomla\CMS\Language\Text;
 
 /**
- * The article controller
+ * Student controller class.
  *
  * @since  1.6
  */
-class SchoolControllerStudentform extends SchoolController
+class SchoolControllerStudentForm extends \Joomla\CMS\MVC\Controller\FormController
 {
+	/**
+	 * Method to check out an item for editing and redirect to the edit form.
+	 *
+	 * @return void
+	 *
+	 * @since    1.6
+     *
+     * @throws Exception
+	 */
+	public function edit($key = NULL, $urlVar = NULL)
+	{
+		$app = Factory::getApplication();
+
+		// Get the previous edit id (if any) and the current edit id.
+		$previousId = (int) $app->getUserState('com_school.edit.student.id');
+		$editId     = $app->input->getInt('id', 0);
+
+		// Set the user id for the user to edit in the session.
+		$app->setUserState('com_school.edit.student.id', $editId);
+
+		// Get the model.
+		$model = $this->getModel('StudentForm', 'SchoolModel');
+
+		// Check out the item
+		if ($editId)
+		{
+			$model->checkout($editId);
+		}
+
+		// Check in the previous user.
+		if ($previousId)
+		{
+			$model->checkin($previousId);
+		}
+
+		// Redirect to the edit screen.
+		$this->setRedirect(Route::_('index.php?option=com_school&view=studentform&layout=edit', false));
+	}
+
 	/**
 	 * Method to save a user's profile data.
 	 *
-	 * @return  void
+	 * @return void
 	 *
-	 * @since   1.6
+	 * @throws Exception
+	 * @since  1.6
 	 */
-	public function save($key = null, $urlVar = null)
+	public function save($key = NULL, $urlVar = NULL)
 	{
 		// Check for request forgeries.
-		$this->checkToken();
+		Session::checkToken() or jexit(Text::_('JINVALID_TOKEN'));
 
-		$app = JFactory::getApplication();
-		$model = $this->getModel('studentform');
+		// Initialise variables.
+		$app   = Factory::getApplication();
 
-		// Get the user data.
-		$requestData = $app->input->post->get('jform', array(), 'array');
-
-		// Validate the posted data.
-		$form = $model->getForm();
-
-		if (! $form)
-		{
-			JError::raiseError(500, $model->getError());
-
-			return false;
-		}
-
-		// Validate the posted data.
-		$data = $model->validate($form, $requestData);
-
-		// Check for errors.
-		if ($data === false)
-		{
-			// Get the validation messages.
-			$errors = $model->getErrors();
-
-			// Push up to three validation messages out to the user.
-			for ($i = 0, $n = count($errors); $i < $n && $i < 3; $i ++)
-			{
-				if ($errors[$i] instanceof Exception)
-				{
-					$app->enqueueMessage($errors[$i]->getMessage(), 'warning');
-				}
-				else
-				{
-					$app->enqueueMessage($errors[$i], 'warning');
-				}
-			}
-
-			// Save the data in the session.
-			$app->setUserState('com_school.edit.student.data', $requestData);
-
-			// Redirect back to the edit screen.
-			$userId = (int) $app->getUserState('com_school.edit.student.id');
-			$this->setRedirect(JRoute::_('index.php?option=com_school&view=studentform&layout=edit&id=' . $userId, false));
-
-			return false;
-		}
-
-		// Attempt to save the data.
-		$return = $model->save($data);
-
-		// Check for errors.
-		if ($return === false)
-		{
-			// Save the data in the session.
-			$app->setUserState('com_school.edit.student.data', $data);
-
-			// Redirect back to the edit screen.
-			$userId = (int) $app->getUserState('com_school.edit.student.id');
-			$this->setMessage(JText::sprintf('COM_SCHOOL_STUDENT_SAVE_FAILED', $model->getError()), 'warning');
-			$this->setRedirect(JRoute::_('index.php?option=com_school&view=studentform&layout=edit&id=' . $userId, false));
-
-			return false;
-		}
-		else
-		{
-			$this->setMessage(JText::_('COM_SCHOOL_STUDENT_SAVE_SUCCESS'), 'success');
-			$this->setRedirect(JRoute::_('index.php?option=com_school&view=students', false));
-		}
+		// Redirect to the list screen.
+		$this->setMessage(Text::_('COM_SCHOOL_ITEM_SAVED_SUCCESSFULLY'));
+		$menu = Factory::getApplication()->getMenu();
+		$item = $menu->getActive();
+		$url  = (empty($item->link) ? 'index.php?option=com_school&view=students' : $item->link);
+		$this->setRedirect(Route::_($url, false));
 
 		// Flush the data from the session.
 		$app->setUserState('com_school.edit.student.data', null);
 	}
+
+	/**
+	 * Method to abort current operation
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	public function cancel($key = NULL)
+	{
+		$app = Factory::getApplication();
+
+		// Get the current edit id.
+		$editId = (int) $app->getUserState('com_school.edit.student.id');
+
+		// Get the model.
+		$model = $this->getModel('StudentForm', 'SchoolModel');
+
+		// Check in the item
+		if ($editId)
+		{
+			$model->checkin($editId);
+		}
+
+		$menu = Factory::getApplication()->getMenu();
+		$item = $menu->getActive();
+		$url  = (empty($item->link) ? 'index.php?option=com_school&view=students' : $item->link);
+		$this->setRedirect(Route::_($url, false));
+	}
+
+	/**
+	 * Method to remove data
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+     *
+     * @since 1.6
+	 */
+	public function remove()
+    {
+        $app   = Factory::getApplication();
+        $model = $this->getModel('StudentForm', 'SchoolModel');
+        $pk    = $app->input->getInt('id');
+
+        // Attempt to save the data
+        try
+        {
+            $return = $model->delete($pk);
+
+            // Check in the profile
+            $model->checkin($return);
+
+            // Clear the profile id from the session.
+            $app->setUserState('com_school.edit.student.id', null);
+
+            $menu = $app->getMenu();
+            $item = $menu->getActive();
+            $url = (empty($item->link) ? 'index.php?option=com_school&view=students' : $item->link);
+
+            // Redirect to the list screen
+            $this->setMessage(Text::_('COM_SCHOOL_ITEM_DELETED_SUCCESSFULLY'));
+            $this->setRedirect(Route::_($url, false));
+
+            // Flush the data from the session.
+            $app->setUserState('com_school.edit.student.data', null);
+        }
+        catch (Exception $e)
+        {
+            $errorType = ($e->getCode() == '404') ? 'error' : 'warning';
+            $this->setMessage($e->getMessage(), $errorType);
+            $this->setRedirect('index.php?option=com_school&view=students');
+        }
+    }
 }

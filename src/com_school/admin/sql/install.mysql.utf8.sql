@@ -1,66 +1,35 @@
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
-
---
--- Table structure for table `tj3xcv_school_students`
---
-
 CREATE TABLE IF NOT EXISTS `#__school_students` (
-  `id` int(11) NOT NULL auto_increment,
-  `user_id` int(11) NOT NULL,
-  `fname` varchar(255) NOT NULL,
-  `mname` varchar(255) NOT NULL,
-  `lname` varchar(255) NOT NULL,
-  `mobile` varchar(12) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `class` varchar(50) NOT NULL,
-  `state` tinyint(1) NOT NULL,
-  `checked_out` int(11) NOT NULL,
-  `checked_out_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(11) NOT NULL,
-  `ordering` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+
+`ordering` INT(11)  NOT NULL ,
+`state` TINYINT(1)  NOT NULL ,
+`checked_out` INT(11)  NOT NULL ,
+`checked_out_time` DATETIME NOT NULL ,
+`created_by` INT(11)  NOT NULL ,
+`user_id` INT(11)  NOT NULL ,
+`name` VARCHAR(255)  NOT NULL ,
+`surname` VARCHAR(255)  NOT NULL ,
+`education` VARCHAR(255)  NOT NULL ,
+`hobbies` TEXT NOT NULL ,
+`address` TEXT NOT NULL ,
+PRIMARY KEY (`id`)
+) DEFAULT COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS `#__school_teachers` (
-  `id` int(11) NOT NULL auto_increment,
-  `user_id` int(11) NOT NULL,
-  `fname` varchar(255) NOT NULL,
-  `mname` varchar(255) NOT NULL,
-  `lname` varchar(255) NOT NULL,
-  `mobile` varchar(12) NOT NULL,
-  `address` varchar(255) NOT NULL,
-  `department` int(11) NOT NULL,
-  `state` tinyint(1) NOT NULL,
-  `checked_out` int(11) NOT NULL,
-  `checked_out_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_by` int(11) NOT NULL,
-  `ordering` int(11) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+`id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 
-CREATE TABLE IF NOT EXISTS `#__school_departments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `dname` varchar(255) NOT NULL,
-  `state` tinyint(1) NOT NULL,
-  `checked_out` int(11) NOT NULL,
-  `checked_out_time` datetime NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `ordering` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+`ordering` INT(11)  NOT NULL ,
+`state` TINYINT(1)  NOT NULL ,
+`checked_out` INT(11)  NOT NULL ,
+`checked_out_time` DATETIME NOT NULL ,
+`created_by` INT(11)  NOT NULL ,
+`modified_by` INT(11)  NOT NULL ,
+`user_id` INT(11)  NOT NULL ,
+`fname` VARCHAR(255)  NOT NULL ,
+`lname` VARCHAR(255)  NOT NULL ,
+`address` TEXT NOT NULL ,
+`mobile` INT NOT NULL ,
+`department` VARCHAR(255)  NOT NULL ,
+PRIMARY KEY (`id`)
+) DEFAULT COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `#__school_subjects` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `state` tinyint(1) NOT NULL,
-  `checked_out` int(11) NOT NULL,
-  `checked_out_time` datetime NOT NULL,
-  `created_by` int(11) NOT NULL,
-  `ordering` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-COMMIT;

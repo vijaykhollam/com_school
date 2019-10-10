@@ -1,25 +1,26 @@
 <?php
-/**
- * @version    SVN: <svn_id>
- * @package    Tjfields
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2015 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
- */
 
+/**
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
+ */
 // No direct access
-defined('_JEXEC') or die();
+defined('_JEXEC') or die;
 
 jimport('joomla.application.component.view');
 
+use \Joomla\CMS\Factory;
+use \Joomla\CMS\Language\Text;
+
 /**
- * View class for Viewing student.
+ * View to edit
  *
- * @package     Tjfields
- * @subpackage  com_tjfields
- * @since       2.2
+ * @since  1.6
  */
-class SchoolViewStudent extends JViewLegacy
+class SchoolViewStudent extends \Joomla\CMS\MVC\View\HtmlView
 {
 	protected $state;
 
@@ -27,19 +28,30 @@ class SchoolViewStudent extends JViewLegacy
 
 	protected $form;
 
+	protected $params;
+
 	/**
 	 * Display the view
 	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 * @param   string  $tpl  Template name
 	 *
-	 * @return  void
+	 * @return void
+	 *
+	 * @throws Exception
 	 */
 	public function display($tpl = null)
 	{
-		$this->state = $this->get('State');
-		$this->item  = $this->get('Data');
-		$this->form  = $this->get('Form');
-		$this->input = JFactory::getApplication()->input;
+		$app  = Factory::getApplication();
+		$user = Factory::getUser();
+
+		$this->state  = $this->get('State');
+		$this->item   = $this->get('Item');
+		$this->params = $app->getParams('com_school');
+
+		if (!empty($this->item))
+		{
+			$this->form = $this->get('Form');
+		}
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -47,6 +59,79 @@ class SchoolViewStudent extends JViewLegacy
 			throw new Exception(implode("\n", $errors));
 		}
 
+		
+
+		if ($this->_layout == 'edit')
+		{
+			$authorised = $user->authorise('core.create', 'com_school');
+
+			if ($authorised !== true)
+			{
+				throw new Exception(Text::_('JERROR_ALERTNOAUTHOR'));
+			}
+		}
+
+		$this->_prepareDocument();
+
 		parent::display($tpl);
+	}
+
+	/**
+	 * Prepares the document
+	 *
+	 * @return void
+	 *
+	 * @throws Exception
+	 */
+	protected function _prepareDocument()
+	{
+		$app   = Factory::getApplication();
+		$menus = $app->getMenu();
+		$title = null;
+
+		// Because the application sets a default page title,
+		// We need to get it from the menu item itself
+		$menu = $menus->getActive();
+
+		if ($menu)
+		{
+			$this->params->def('page_heading', $this->params->get('page_title', $menu->title));
+		}
+		else
+		{
+			$this->params->def('page_heading', Text::_('COM_SCHOOL_DEFAULT_PAGE_TITLE'));
+		}
+
+		$title = $this->params->get('page_title', '');
+
+		if (empty($title))
+		{
+			$title = $app->get('sitename');
+		}
+		elseif ($app->get('sitename_pagetitles', 0) == 1)
+		{
+			$title = Text::sprintf('JPAGETITLE', $app->get('sitename'), $title);
+		}
+		elseif ($app->get('sitename_pagetitles', 0) == 2)
+		{
+			$title = Text::sprintf('JPAGETITLE', $title, $app->get('sitename'));
+		}
+
+		$this->document->setTitle($title);
+
+		if ($this->params->get('menu-meta_description'))
+		{
+			$this->document->setDescription($this->params->get('menu-meta_description'));
+		}
+
+		if ($this->params->get('menu-meta_keywords'))
+		{
+			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+		}
+
+		if ($this->params->get('robots'))
+		{
+			$this->document->setMetadata('robots', $this->params->get('robots'));
+		}
 	}
 }

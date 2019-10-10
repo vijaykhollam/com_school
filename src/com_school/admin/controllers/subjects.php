@@ -10,14 +10,14 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 
-use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\MVC\Controller\AdminController;
 
 /**
  * Articles list controller class.
  *
  * @since  1.6
  */
-class SchoolControllerSubjects extends JControllerAdmin
+class SchoolControllerSubjects extends AdminController
 {
 	/**
 	 * Proxy for getModel.

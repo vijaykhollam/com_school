@@ -1,79 +1,87 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    Tjfields
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2015 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
-
 // No direct access
-defined('_JEXEC') or die();
+defined('_JEXEC') or die;
 
-JHtml::_('behavior.tooltip');
+$canEdit = JFactory::getUser()->authorise('core.edit', 'com_school');
+
+if (!$canEdit && JFactory::getUser()->authorise('core.edit.own', 'com_school'))
+{
+	$canEdit = JFactory::getUser()->id == $this->item->created_by;
+}
 ?>
 
-<div class="">
-		<div class="form-horizontal">
-			<div class="row-fluid">
-				<div class="span12 form-horizontal">
-					<fieldset class="adminform">
+<div class="item_fields">
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_FNAME'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->fname; ?>
-							</div>
-						</div>
+	<table class="table">
+		
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_MNAME'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->mname; ?>
-							</div>
-						</div>
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_USER_ID'); ?></th>
+			<td><?php echo $this->item->user_id_name; ?></td>
+		</tr>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_LNAME'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->lname;?>
-							</div>
-						</div>
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_NAME'); ?></th>
+			<td><?php echo $this->item->name; ?></td>
+		</tr>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_CLASS'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->class;?>
-							</div>
-						</div>
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_SURNAME'); ?></th>
+			<td><?php echo $this->item->surname; ?></td>
+		</tr>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_MOBILE'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->mobile;?>
-							</div>
-						</div>
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_EDUCATION'); ?></th>
+			<td><?php echo $this->item->education; ?></td>
+		</tr>
 
-						<div class="control-group">
-							<div class="control-label">
-								<?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_ADDRESS'); ?>
-							</div>
-							<div class="controls">
-								<?php echo $this->item->address;?>
-							</div>
-						</div>
-					</fieldset>
-				</div>
-			</div>
-		</div>
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_HOBBIES'); ?></th>
+			<td><?php echo nl2br($this->item->hobbies); ?></td>
+		</tr>
+
+		<tr>
+			<th><?php echo JText::_('COM_SCHOOL_FORM_LBL_STUDENT_ADDRESS'); ?></th>
+			<td><?php echo nl2br($this->item->address); ?></td>
+		</tr>
+
+	</table>
+
 </div>
+
+<?php if($canEdit && $this->item->checked_out == 0): ?>
+
+	<a class="btn" href="<?php echo JRoute::_('index.php?option=com_school&task=student.edit&id='.$this->item->id); ?>"><?php echo JText::_("COM_SCHOOL_EDIT_ITEM"); ?></a>
+
+<?php endif; ?>
+
+<?php if (JFactory::getUser()->authorise('core.delete','com_school.student.'.$this->item->id)) : ?>
+
+	<a class="btn btn-danger" href="#deleteModal" role="button" data-toggle="modal">
+		<?php echo JText::_("COM_SCHOOL_DELETE_ITEM"); ?>
+	</a>
+
+	<div id="deleteModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3><?php echo JText::_('COM_SCHOOL_DELETE_ITEM'); ?></h3>
+		</div>
+		<div class="modal-body">
+			<p><?php echo JText::sprintf('COM_SCHOOL_DELETE_CONFIRM', $this->item->id); ?></p>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal">Close</button>
+			<a href="<?php echo JRoute::_('index.php?option=com_school&task=student.remove&id=' . $this->item->id, false, 2); ?>" class="btn btn-danger">
+				<?php echo JText::_('COM_SCHOOL_DELETE_ITEM'); ?>
+			</a>
+		</div>
+	</div>
+
+<?php endif; ?>

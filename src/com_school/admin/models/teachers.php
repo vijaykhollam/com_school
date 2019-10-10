@@ -1,58 +1,59 @@
 <?php
+
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
+defined('_JEXEC') or die;
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
+jimport('joomla.application.component.modellist');
 
 /**
- * Methods supporting a list of records.
+ * Methods supporting a list of School records.
  *
  * @since  1.6
  */
-class SchoolModelTeachers extends JModelList
+class SchoolModelTeachers extends \Joomla\CMS\MVC\Model\ListModel
 {
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 *
-	 * @see        JController
-	 * @since      1.6
-	 */
+    
+        
+/**
+	* Constructor.
+	*
+	* @param   array  $config  An optional associative array of configuration settings.
+	*
+	* @see        JController
+	* @since      1.6
+	*/
 	public function __construct($config = array())
 	{
 		if (empty($config['filter_fields']))
 		{
 			$config['filter_fields'] = array(
-				'id',
-				'a.id',
-				'name',
-				'a.fname',
-				'mobile',
-				'a.mobile',
-				'created_by',
-				'a.created_by',
-				'ordering',
-				'a.ordering',
-				'state',
-				'a.state',
-				'published',
-				'a.published',
-				'department',
-				'a.department',
-				'search'
+				'id', 'a.`id`',
+				'ordering', 'a.`ordering`',
+				'state', 'a.`state`',
+				'created_by', 'a.`created_by`',
+				'modified_by', 'a.`modified_by`',
+				'user_id', 'a.`user_id`',
+				'fname', 'a.`fname`',
+				'lname', 'a.`lname`',
+				'address', 'a.`address`',
+				'mobile', 'a.`mobile`',
+				'department', 'a.`department`',
 			);
 		}
 
 		parent::__construct($config);
 	}
 
+    
+        
+    
+        
 	/**
 	 * Method to auto-populate the model state.
 	 *
@@ -65,43 +66,46 @@ class SchoolModelTeachers extends JModelList
 	 *
 	 * @throws Exception
 	 */
-	protected function populateState($ordering = 'a.id', $direction = 'desc')
+	protected function populateState($ordering = null, $direction = null)
 	{
-		// Initialise variables.
-		$app = JFactory::getApplication('administrator');
+        // List state information.
+        parent::populateState('id', 'ASC');
 
-		// Set ordering.
-		$orderCol = $app->getUserStateFromRequest($this->context . '.filter_order', 'filter_order');
+        $context = $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search');
+        $this->setState('filter.search', $context);
 
-		if (!in_array($orderCol, $this->filter_fields))
-		{
-			$orderCol = 'a.id';
-		}
+        // Split context into component and optional section
+        $parts = FieldsHelper::extract($context);
 
-		$this->setState('list.ordering', $orderCol);
+        if ($parts)
+        {
+            $this->setState('filter.component', $parts[0]);
+            $this->setState('filter.section', $parts[1]);
+        }
+	}
 
-		// Set ordering direction.
-		echo $listOrder = $app->getUserStateFromRequest($this->context . 'filter_order_Dir', 'filter_order_Dir');
+	/**
+	 * Method to get a store id based on model configuration state.
+	 *
+	 * This is necessary because the model is used by the component and
+	 * different modules that might need different sets of data or different
+	 * ordering requirements.
+	 *
+	 * @param   string  $id  A prefix for the store id.
+	 *
+	 * @return   string A store id.
+	 *
+	 * @since    1.6
+	 */
+	protected function getStoreId($id = '')
+	{
+		// Compile the store id.
+		$id .= ':' . $this->getState('filter.search');
+		$id .= ':' . $this->getState('filter.state');
 
-		if (!in_array(strtoupper($listOrder), array('ASC','DESC','')))
-		{
-			$listOrder = 'ASC';
-		}
-
-		// Load the filter search
-		$search = $app->getUserStateFromRequest($this->context . 'filter.search', 'filter_search');
-		$this->setState('filter.search', $search);
-
-		// Load the filter state
-		$published = $app->getUserStateFromRequest($this->context . 'filter.state', 'filter_state', '', 'string');
-		$this->setState('filter.state', $published);
-
-		// Load the parameters.
-		$params = JComponentHelper::getParams('com_school');
-		$this->setState('params', $params);
-
-		// List state information.
-		parent::populateState($ordering, $direction);
+                
+                    return parent::getStoreId($id);
+                
 	}
 
 	/**
@@ -118,17 +122,32 @@ class SchoolModelTeachers extends JModelList
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.
-		$query->select($this->getState('list.select', 'DISTINCT a.*,d.dname'));
-
+		$query->select(
+			$this->getState(
+				'list.select', 'DISTINCT a.*'
+			)
+		);
 		$query->from('`#__school_teachers` AS a');
+                
+		// Join over the users for the checked out user
+		$query->select("uc.name AS uEditor");
+		$query->join("LEFT", "#__users AS uc ON uc.id=a.checked_out");
 
-		// Join over the users for the checked out user.
-		$query->select('u.email AS email');
-		$query->join('LEFT', '#__school_departments AS d ON a.department=d.id');
-		$query->join('LEFT', '#__users AS u ON u.id=a.user_id');
+		// Join over the user field 'created_by'
+		$query->select('`created_by`.name AS `created_by`');
+		$query->join('LEFT', '#__users AS `created_by` ON `created_by`.id = a.`created_by`');
+
+		// Join over the user field 'modified_by'
+		$query->select('`modified_by`.name AS `modified_by`');
+		$query->join('LEFT', '#__users AS `modified_by` ON `modified_by`.id = a.`modified_by`');
+
+		// Join over the user field 'user_id'
+		$query->select('`user_id`.name AS `user_id`');
+		$query->join('LEFT', '#__users AS `user_id` ON `user_id`.id = a.`user_id`');
+                
 
 		// Filter by published state
-		$published = $this->getState('filter.published');
+		$published = $this->getState('filter.state');
 
 		if (is_numeric($published))
 		{
@@ -136,10 +155,10 @@ class SchoolModelTeachers extends JModelList
 		}
 		elseif ($published === '')
 		{
-			$query->where('(a.state = 0 OR a.state = 1)');
+			$query->where('(a.state IN (0, 1))');
 		}
 
-		// Filter by search in title.
+		// Filter by search in title
 		$search = $this->getState('filter.search');
 
 		if (!empty($search))
@@ -150,14 +169,30 @@ class SchoolModelTeachers extends JModelList
 			}
 			else
 			{
-				$search = $db->quote('%' . $db->escape($search) . '%');
-				$query->where('(a.fname LIKE ' . $search . ' OR a.lname LIKE ' . $search . ')');
+				$search = $db->Quote('%' . $db->escape($search, true) . '%');
+				$query->where('( a.fname LIKE ' . $search . ' )');
 			}
 		}
+                
 
+		// Filtering user_id
+		$filter_user_id = $this->state->get("filter.user_id");
+
+		if ($filter_user_id !== null && !empty($filter_user_id))
+		{
+			$query->where("a.`user_id` = '".$db->escape($filter_user_id)."'");
+		}
+
+		// Filtering department
+		$filter_department = $this->state->get("filter.department");
+
+		if ($filter_department !== null && (is_numeric($filter_department) || !empty($filter_department)))
+		{
+			$query->where("a.`department` = '".$db->escape($filter_department)."'");
+		}
 		// Add the list ordering clause.
-		$orderCol  = $this->state->get('list.ordering');
-		$orderDirn = $this->state->get('list.direction');
+		$orderCol  = $this->state->get('list.ordering', 'id');
+		$orderDirn = $this->state->get('list.direction', 'ASC');
 
 		if ($orderCol && $orderDirn)
 		{
@@ -168,38 +203,18 @@ class SchoolModelTeachers extends JModelList
 	}
 
 	/**
-	 * Method to get a store id based on model configuration state.
+	 * Get an array of data items
 	 *
-	 * This is necessary because the model is used by the component and
-	 * different modules that might need different sets of data or different
-	 * ordering requirements.
-	 *
-	 * @param   string  $id  A prefix for the store id.
-	 *
-	 * @return  string  A store id.
-	 *
-	 * @since   1.6
-	 */
-	protected function getStoreId($id = '')
-	{
-		// Compile the store id.
-		$id .= ':' . $this->getState('filter.search');
-		$id .= ':' . $this->getState('filter.state');
-
-		return parent::getStoreId($id);
-	}
-
-	/**
-	 * Method to get a list of articles.
-	 * Overridden to add a check for access levels.
-	 *
-	 * @return  mixed  An array of data items on success, false on failure.
-	 *
-	 * @since   1.6.1
+	 * @return mixed Array of data items on success, false on failure.
 	 */
 	public function getItems()
 	{
 		$items = parent::getItems();
+                
+		foreach ($items as $oneItem)
+		{
+					$oneItem->department = JText::_('COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_' . strtoupper($oneItem->department));
+		}
 
 		return $items;
 	}

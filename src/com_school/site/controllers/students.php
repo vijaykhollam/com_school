@@ -1,37 +1,20 @@
 <?php
 /**
- * @version    SVN: <svn_id>
- * @package    School
- * @author     Techjoomla <extensions@techjoomla.com>
- * @copyright  Copyright (c) 2009-2017 TechJoomla. All rights reserved.
- * @license    GNU General Public License version 2 or later.
+ * @version    CVS: 1.0.4
+ * @package    Com_School
+ * @author     Manoj L <manoj_l@techjoomla.com>
+ * @copyright  Copyright (C) 2017. All rights reserved.
+ * @license    Manoj
  */
 
-// No direct access to this file
-defined('_JEXEC') or die('Restricted access');
-
-use Joomla\Utilities\ArrayHelper;
+// No direct access.
+defined('_JEXEC') or die;
 
 /**
- * Articles list controller class.
+ * Students list controller class.
  *
  * @since  1.6
  */
-class SchoolControllerStudents extends JControllerAdmin
+class SchoolControllerStudents extends SchoolController
 {
-	/**
-	 * Proxy for getModel.
-	 *
-	 * @param   string  $name    The model name. Optional.
-	 * @param   string  $prefix  The class prefix. Optional.
-	 * @param   array   $config  The array of possible config values. Optional.
-	 *
-	 * @return  JModelLegacy
-	 *
-	 * @since   1.6
-	 */
-	public function getModel($name = 'Student', $prefix = 'SchoolModel', $config = array('ignore_request' => true))
-	{
-		return parent::getModel($name, $prefix, $config);
-	}
 }
