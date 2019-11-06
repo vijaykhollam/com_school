@@ -55,7 +55,7 @@
 			<menu link="option=com_school&amp;view=teachers" view="teachers" alt="School/Teachers">COM_SCHOOL_TITLE_TEACHERS</menu>
 
         </submenu>
-        <files folder="administrator">
+        <files folder="admin">
             <filename>access.xml</filename>
             <filename>config.xml</filename>
             <filename>controller.php</filename>
@@ -69,7 +69,7 @@
             <folder>tables</folder>
             <folder>views</folder>
         </files>
-        <languages folder="administrator/languages">
+        <languages folder="admin/languages">
             
 			<language tag="en-GB">en-GB/en-GB.com_school.ini</language>
 			<language tag="en-GB">en-GB/en-GB.com_school.sys.ini</language>
