@@ -9,7 +9,29 @@ reviews:
   review_status: true
   collapse_walkthrough: false
   path_filters:
+    # Exclude XML files for manifest and configuration
     - "!**/*.xml"
+    # Exclude language files (translations)
+    - "!**/language/**/*.ini"
+    # Exclude asset files that don’t need review
+    - "!**/*.svg"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"
+    - "!**/*.ico"
+    # Exclude compiled and minified files
+    - "!**/*.min.js"
+    - "!**/*.min.css"
+    # Exclude SCSS files if they are intermediate and do not need review
+    - "!**/templates/**/*.scss"
+    # Exclude libraries and vendor code (third-party dependencies)
+    - "!**/node_modules/**"
+    - "!**/vendor/**"
+    # Exclude build files
+    - "!**/build/**"
+    # Exclude configuration files that are environment-specific
+    - "!**/configuration.php"
   path_instructions:
     - path: "**/*.js"
       instructions: "Review the JavaScript code for conformity with the Google JavaScript style guide, highlighting any deviations."
