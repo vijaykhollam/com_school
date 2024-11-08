@@ -1,26 +1,29 @@
-# .coderabbit.yaml
-# Simplified configuration for CodeRabbit AI for a Joomla extension
+# Basic configuration for CodeRabbit AI
+# Code quality, security, and style checks for a Joomla extension
 
-# Code quality and linting
-php:
-  linter: "phpcs"
-  standard: "Joomla"
+# List of tools
+tools:
+  - name: "phpcs"
+    args: "--standard=Joomla src/"  # Set Joomla coding standard
 
-javascript:
-  linter: "eslint"
-  config: "recommended"
+  - name: "eslint"
+    args: "--config .eslintrc.js src/"  # If JavaScript files need linting with ESLint
 
-html:
-  linter: "htmlhint"
+# Exclusions
+exclude_paths:
+  - "node_modules/"
+  - "vendor/"
+  - "build/"
+  - "tests/"
 
-css:
-  linter: "stylelint"
+# Optional: Define specific languages if supported
+languages:
+  - php
+  - javascript
+  - html
+  - css
 
-# Exclude directories and files that should not be analyzed
-exclude:
-  - "node_modules"
-  - "vendor"
-  - "build"
-  - "tests"
-  - "*.min.js"
-  - "*.min.css"
+# Specify CI/CD integration if required by CodeRabbit
+ci_cd:
+  provider: "github"
+  config_file: ".github/workflows/php.yml"
