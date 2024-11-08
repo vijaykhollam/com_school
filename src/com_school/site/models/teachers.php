@@ -1,245 +1,157 @@
 <?php
 
-/**
- * @version    CVS: 1.0.4
- * @package    Com_School
- * @author     Manoj L <manoj_l@techjoomla.com>
- * @copyright  Copyright (C) 2017. All rights reserved.
- * @license    Manoj
- */
-
+// Ensure this file is included in Joomla.
 defined('_JEXEC') or die;
 
-use \Joomla\CMS\Factory;
-use \Joomla\CMS\Language\Text;
-
-jimport('joomla.application.component.modellist');
+use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\Model\ListModel;
+use Joomla\Database\DatabaseQuery;
 
 /**
- * Methods supporting a list of School records.
- *
- * @since  1.6
+ * Teachers Model for com_school.
  */
-class SchoolModelTeachers extends \Joomla\CMS\MVC\Model\ListModel
+class com_schoolModelTeachers extends ListModel
 {
-	/**
-	 * Constructor.
-	 *
-	 * @param   array  $config  An optional associative array of configuration settings.
-	 *
-	 * @see        JController
-	 * @since      1.6
-	 */
-	public function __construct($config = array())
-	{
-		if (empty($config['filter_fields']))
-		{
-			$config['filter_fields'] = array(
-				'id', 'a.id',
-				'ordering', 'a.ordering',
-				'state', 'a.state',
-				'created_by', 'a.created_by',
-				'modified_by', 'a.modified_by',
-				'user_id', 'a.user_id',
-				'fname', 'a.fname',
-				'lname', 'a.lname',
-				'address', 'a.address',
-				'mobile', 'a.mobile',
-				'department', 'a.department',
-			);
-		}
+    /**
+     * Constructor.
+     *
+     * @param array $config An optional associative array of configuration settings.
+     */
+    public function __construct($config = [])
+    {
+        $config['filter_fields'] = isset($config['filter_fields']) ? $config['filter_fields'] : ['id', 'fname', 'user_id', 'department'];
+        parent::__construct($config);
+    }
 
-		parent::__construct($config);
-	}
-
+    /**
+     * Method to auto-populate the model state.
+     */
+    protected function populateState($ordering = 'id', $direction = 'ASC')
+    {
+        // Load the filter state.
+        $app = Factory::getApplication();
+        $search = $app->input->getString('filter_search');
+        $this->setState('filter.search', $search);
         
-        
-	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * Note. Calling getState in this method will result in recursion.
-	 *
-	 * @param   string  $ordering   Elements order
-	 * @param   string  $direction  Order direction
-	 *
-	 * @return void
-	 *
-	 * @throws Exception
-	 *
-	 * @since    1.6
-	 */
-	protected function populateState($ordering = null, $direction = null)
-	{
-            $app  = JFactory::getApplication();
-		$list = $app->getUserState($this->context . '.list');
+        $userId = $app->input->getInt('filter_user_id');
+        $this->setState('filter.user_id', $userId);
 
-		$ordering  = isset($list['filter_order'])     ? $list['filter_order']     : null;
-		$direction = isset($list['filter_order_Dir']) ? $list['filter_order_Dir'] : null;
+        $department = $app->input->getString('filter_department');
+        $this->setState('filter.department', $department);
 
-		$list['limit']     = $app->getUserStateFromRequest($this->context . '.list.limit', 'limit', $app->get('list_limit'), 'uint');
-		$list['start']     = $app->input->getInt('start', 0);
-		$list['ordering']  = $ordering;
-		$list['direction'] = $direction;
+        // Load the list state.
+        parent::populateState($ordering, $direction);
+    }
 
-		$app->setUserState($this->context . '.list', $list);
-		$app->input->set('list', null);
-           
-            
-        // List state information.
+    /**
+     * Build an SQL query to load the list data.
+     *
+     * @return DatabaseQuery The SQL query to load data.
+     */
+    protected function getListQuery()
+    {
+        // Create a new database query instance.
+        $db    = $this->getDbo();
+        $query = $db->getQuery(true);
 
-        parent::populateState('id', 'ASC');
+        // Select the required fields from the table.
+        $query->select(
+            $this->getState(
+                'list.select', 'DISTINCT a.*'
+            )
+        );
 
-        $context = $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search');
-        $this->setState('filter.search', $context);
+        $query->from($db->quoteName('#__school_teachers', 'a'));
 
-        // Split context into component and optional section
-        $parts = FieldsHelper::extract($context);
+        // Join over the users for the checked out user.
+        $query->select($db->quoteName('uc.name', 'uEditor'));
+        $query->join('LEFT', $db->quoteName('#__users', 'uc') . ' ON uc.id = a.checked_out');
 
-        if ($parts)
-        {
-            $this->setState('filter.component', $parts[0]);
-            $this->setState('filter.section', $parts[1]);
+        // Join over the created by field 'created_by'
+        $query->join('LEFT', $db->quoteName('#__users', 'created_by') . ' ON created_by.id = a.created_by');
+
+        // Join over the modified by field 'modified_by'
+        $query->join('LEFT', $db->quoteName('#__users', 'modified_by') . ' ON modified_by.id = a.modified_by');
+
+        // Apply access filter
+        if (!Factory::getUser()->authorise('core.edit', 'com_school')) {
+            $query->where('a.state = 1');
         }
-	}
 
-	/**
-	 * Build an SQL query to load the list data.
-	 *
-	 * @return   JDatabaseQuery
-	 *
-	 * @since    1.6
-	 */
-	protected function getListQuery()
-	{
-            // Create a new query object.
-            $db    = $this->getDbo();
-            $query = $db->getQuery(true);
-
-            // Select the required fields from the table.
-            $query->select(
-                        $this->getState(
-                                'list.select', 'DISTINCT a.*'
-                        )
-                );
-
-            $query->from('`#__school_teachers` AS a');
-            
-		// Join over the users for the checked out user.
-		$query->select('uc.name AS uEditor');
-		$query->join('LEFT', '#__users AS uc ON uc.id=a.checked_out');
-
-		// Join over the created by field 'created_by'
-		$query->join('LEFT', '#__users AS created_by ON created_by.id = a.created_by');
-
-		// Join over the created by field 'modified_by'
-		$query->join('LEFT', '#__users AS modified_by ON modified_by.id = a.modified_by');
-            
-		if (!Factory::getUser()->authorise('core.edit', 'com_school'))
-		{
-			$query->where('a.state = 1');
-		}
-
-            // Filter by search in title
-            $search = $this->getState('filter.search');
-
-            if (!empty($search))
-            {
-                if (stripos($search, 'id:') === 0)
-                {
-                    $query->where('a.id = ' . (int) substr($search, 3));
-                }
-                else
-                {
-                    $search = $db->Quote('%' . $db->escape($search, true) . '%');
-					$query->where('( a.fname LIKE ' . $search . ' )');
-                }
+        // Filter by search in title
+        $search = $this->getState('filter.search');
+        if (!empty($search)) {
+            if (stripos($search, 'id:') === 0) {
+                $query->where('a.id = ' . (int) substr($search, 3));
+            } else {
+                $search = '%' . $db->escape($search, true) . '%';
+                $query->where('(a.fname LIKE ' . $db->quote($search) . ')');
             }
-            
+        }
 
-		// Filtering user_id
-		$filter_user_id = $this->state->get("filter.user_id");
+        // Filtering by user_id
+        $filterUserId = $this->state->get('filter.user_id');
+        if (!empty($filterUserId)) {
+            $query->where('a.user_id = ' . (int) $filterUserId);
+        }
 
-		if ($filter_user_id)
-		{
-			$query->where("a.`user_id` = '" . $db->escape($filter_user_id) . "'");
-		}
+        // Filtering by department
+        $filterDepartment = $this->state->get('filter.department');
+        if (!empty($filterDepartment)) {
+            $query->where('a.department = ' . $db->quote($filterDepartment));
+        }
 
-		// Filtering department
-		$filter_department = $this->state->get("filter.department");
-		if ($filter_department != '') {
-			$query->where("a.`department` = '".$db->escape($filter_department)."'");
-		}
+        // Add the list ordering clause.
+        $orderCol  = $this->state->get('list.ordering', 'id');
+        $orderDirn = $this->state->get('list.direction', 'ASC');
 
-            // Add the list ordering clause.
-            $orderCol  = $this->state->get('list.ordering', 'id');
-            $orderDirn = $this->state->get('list.direction', 'ASC');
+        if ($orderCol && $orderDirn) {
+            $query->order($db->escape($orderCol) . ' ' . $db->escape($orderDirn));
+        }
 
-            if ($orderCol && $orderDirn)
-            {
-                $query->order($db->escape($orderCol . ' ' . $orderDirn));
+        return $query;
+    }
+
+    /**
+     * Get a Table instance for the teachers.
+     *
+     * @param string $type   The table type to instantiate.
+     * @param string $prefix A prefix for the table class name.
+     * @param array  $config Configuration array for the model.
+     *
+     * @return \JTable A database object.
+     */
+    public function getTable($type = 'Teachers', $prefix = 'SchoolTable', $config = [])
+    {
+        return parent::getTable($type, $prefix, $config);
+    }
+
+    /**
+     * Validate a given date.
+     *
+     * @param string $date Date to validate.
+     *
+     * @return bool True if the date is valid, otherwise false.
+     */
+    public function isValidDate($date)
+    {
+        $timestamp = strtotime($date);
+        return $timestamp !== false;
+    }
+
+    /**
+     * Retrieve the list of items, validating dates if necessary.
+     *
+     * @return array|bool Array of items or false on failure.
+     */
+    public function getItems()
+    {
+        $items = parent::getItems();
+        foreach ($items as &$item) {
+            if (isset($item->joining_date) && !$this->isValidDate($item->joining_date)) {
+                $item->joining_date = null; // Handle invalid date
             }
-
-            return $query;
-	}
-
-	/**
-	 * Method to get an array of data items
-	 *
-	 * @return  mixed An array of data on success, false on failure.
-	 */
-	public function getItems()
-	{
-		$items = parent::getItems();
-		
-		foreach ($items as $item)
-		{
-
-			$item->department = JText::_('COM_SCHOOL_TEACHERS_DEPARTMENT_OPTION_' . strtoupper($item->department));
-		}
-
-		return $items;
-	}
-
-	/**
-	 * Overrides the default function to check Date fields format, identified by
-	 * "_dateformat" suffix, and erases the field if it's not correct.
-	 *
-	 * @return void
-	 */
-	protected function loadFormData()
-	{
-		$app              = Factory::getApplication();
-		$filters          = $app->getUserState($this->context . '.filter', array());
-		$error_dateformat = false;
-
-		foreach ($filters as $key => $value)
-		{
-			if (strpos($key, '_dateformat') && !empty($value) && $this->isValidDate($value) == null)
-			{
-				$filters[$key]    = '';
-				$error_dateformat = true;
-			}
-		}
-
-		if ($error_dateformat)
-		{
-			$app->enqueueMessage(Text::_("COM_SCHOOL_SEARCH_FILTER_DATE_FORMAT"), "warning");
-			$app->setUserState($this->context . '.filter', $filters);
-		}
-
-		return parent::loadFormData();
-	}
-
-	/**
-	 * Checks if a given date is valid and in a specified format (YYYY-MM-DD)
-	 *
-	 * @param   string  $date  Date to be checked
-	 *
-	 * @return bool
-	 */
-	private function isValidDate($date)
-	{
-		$date = str_replace('/', '-', $date);
-		return (date_create($date)) ? Factory::getDate($date)->format("Y-m-d") : null;
-	}
+        }
+        return $items;
+    }
 }
