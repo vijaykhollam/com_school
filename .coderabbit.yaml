@@ -1,29 +1,37 @@
-# Basic configuration for CodeRabbit AI
-# Code quality, security, and style checks for a Joomla extension
+language: "en"
 
-# List of tools
-tools:
-  - name: "phpcs"
-    args: "--standard=Joomla src/"  # Set Joomla coding standard
+early_access: false
 
-  - name: "eslint"
-    args: "--config .eslintrc.js src/"  # If JavaScript files need linting with ESLint
+reviews:
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  path_filters:
+    - "!**/.xml"
+  path_instructions:
+    - path: "**/*.js"
+      instructions: "Review the JavaScript code for conformity with the Google JavaScript style guide, highlighting any deviations."
+    - path: "**/*.ts"
+      instructions: |
+        "Review the JavaScript code for conformity with the Google JavaScript style guide, highlighting any deviations. Ensure that:
+        - The code adheres to best practices associated with nodejs.
+        - The code adheres to best practices associated with nestjs framework.
+        - The code adheres to best practices recommended for performance.
+        - The code adheres to similar naming conventions for controllers, models, services, methods, variables."
+  auto_review:
+    enabled: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+    drafts: false
+    base_branches:
+    - "master"
+    - "dev"
+    - "feat/*"
+    - "feat-*"
+    - "release-*"
 
-# Exclusions
-exclude_paths:
-  - "node_modules/"
-  - "vendor/"
-  - "build/"
-  - "tests/"
-
-# Optional: Define specific languages if supported
-languages:
-  - php
-  - javascript
-  - html
-  - css
-
-# Specify CI/CD integration if required by CodeRabbit
-ci_cd:
-  provider: "github"
-  config_file: ".github/workflows/php.yml"
+chat:
+  auto_reply: true
