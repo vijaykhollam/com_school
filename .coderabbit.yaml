@@ -13,6 +13,8 @@ reviews:
   path_instructions:
     - path: "**/*.js"
       instructions: "Review the JavaScript code for conformity with the Google JavaScript style guide, highlighting any deviations."
+    - path: "**/*.php"
+      instructions: "Review the PHP code for Joomla coding standards compliance. Ensure adherence to best practices for Joomla extensions, including MVC structure, security practices, and Joomla-specific function usage."
     - path: "**/*.ts"
       instructions: |
         "Review the JavaScript code for conformity with the Google JavaScript style guide, highlighting any deviations. Ensure that:
