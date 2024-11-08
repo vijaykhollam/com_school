@@ -1,62 +1,26 @@
 # .coderabbit.yaml
-# Configuration for CodeRabbit AI for a Joomla extension in PHP, HTML, CSS, and JavaScript
+# Simplified configuration for CodeRabbit AI for a Joomla extension
 
-version: 1
+# Code quality and linting
+php:
+  linter: "phpcs"
+  standard: "Joomla"
 
-# Language settings
-languages:
-  - php
-  - html
-  - css
-  - javascript
+javascript:
+  linter: "eslint"
+  config: "recommended"
 
-# Code quality and linting settings
-quality:
-  php:
-    linter: "phpcs"  # PHP Code Sniffer for code style checks
-    standard: "Joomla"  # Joomla coding standard for PHP Code Sniffer
-  html:
-    linter: "htmlhint"  # HTMLHint for HTML linting
-  css:
-    linter: "stylelint"  # Stylelint for CSS linting
-  javascript:
-    linter: "eslint"  # ESLint for JavaScript linting
-    config: "recommended"  # Use ESLint recommended config
+html:
+  linter: "htmlhint"
 
-# Testing settings
-testing:
-  php:
-    unit: "phpunit"  # PHPUnit for PHP unit tests
-    paths:
-      - "tests/unit"  # Path to your PHPUnit test directory
-  javascript:
-    unit: "jest"  # Jest for JavaScript unit tests if applicable
-    paths:
-      - "tests/js"  # Path to JavaScript test directory
+css:
+  linter: "stylelint"
 
 # Exclude directories and files that should not be analyzed
 exclude:
   - "node_modules"
   - "vendor"
   - "build"
-  - "tests"  # Adjust as necessary for non-production code directories
-  - "*.min.js"  # Exclude minified JS files
-  - "*.min.css"  # Exclude minified CSS files
-
-# CI/CD Integration
-ci:
-  tools:
-    - name: "GitHub Actions"  # Specify GitHub Actions if using it for CI/CD
-      config_file: ".github/workflows/php.yml"  # Adjust as necessary
-
-# Additional custom commands
-custom_commands:
-  - name: "Run Joomla-specific checks"
-    command: "phpcs --standard=Joomla ./src"
-  - name: "Run all linters"
-    command: |
-      phpcs --standard=Joomla ./src
-      htmlhint ./src
-      stylelint './src/**/*.css'
-      eslint './src/**/*.js'
-
+  - "tests"
+  - "*.min.js"
+  - "*.min.css"
